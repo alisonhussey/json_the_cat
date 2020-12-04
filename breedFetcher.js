@@ -1,17 +1,23 @@
 const request = require('request');
-const arguments = process.argv.slice(2);
-const breed = arguments[0];
-const url = `https://api.thecatapi.com/v1/breeds/search?q=${breed}`;
+const baseUrl = 'https://api.thecatapi.com/v1/breeds/search?q=';
 
-request(url, (err, response, body) => {
-  if (err) {
-    console.log('url invalid', err);
-  } else {
-    const data = JSON.parse(body);
-    if (data.length === 0) {
-      console.log('breed does not exist');
+
+const fetchBreedDescription = function(breed, callback) {
+  const newUrl = baseUrl + breed;
+  request(newUrl, (err, response, body) => {
+    if (err) {
+      callback(err, null);
     } else {
-      console.log(data[0].description);
+      const data = JSON.parse(body);
+      if (!data.length) {
+        callback('breed does not exist', null);
+      } else {
+        callback(null, data[0].description);
+      }
     }
-  }
-});
+  });
+};
+
+
+
+module.exports = { fetchBreedDescription };
